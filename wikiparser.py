@@ -12,10 +12,12 @@ import threading
 import thread
 import time
 import sys
+from UserString import MutableString
 
 OUTPUT_DIRECTORY = "wikipedia"
-ARTICLE_COUNT = 5000
+ARTICLE_COUNT = 500
 storedata = False
+currentArticle = MutableString()
 filedata = []
 stop = False
 outputlock = thread.allocate_lock()
@@ -30,17 +32,20 @@ def startelement(name, attrs):
     global storedata
     storedata = (name == "text")
     if storedata:
-        global entrycount, filedata
+        global entrycount, filedata, currentArticle
         entrycount += 1
-        filedata.append("\n")
+        filetext = asciify(unicode(currentArticle))
+        if filetext:
+            filedata.append(filetext)
+        currentArticle = MutableString()
 
 # Start parsing the data that we are getting
 def getdata(text):
     if storedata:
         text = asciify(text)
         if text and not text.startswith("#REDIRECT"):
-            global filedata
-            filedata.append(text)
+            global currentArticle
+            currentArticle += text
             if stop or entrycount >= ARTICLE_COUNT: #2 entries per article
                 writeout()
 
@@ -82,7 +87,7 @@ def writeout():
     global filedata, entrycount, filecount
     filename = "%s/%d.txt" % (OUTPUT_DIRECTORY, filecount)
     file = open(filename, "w")
-    file.write("".join(filedata))
+    file.write("\n".join(filedata))
     file.close()
     filecount += 1
     with outputlock:
