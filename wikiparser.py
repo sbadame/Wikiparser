@@ -13,9 +13,10 @@ import thread
 import time
 import sys
 from UserString import MutableString
+from BeautifulSoup import BeautifulSoup
 
 OUTPUT_DIRECTORY = "wikipedia"
-ARTICLE_COUNT = 500
+ARTICLE_COUNT = 2000
 storedata = False
 currentArticle = MutableString()
 filedata = []
@@ -52,28 +53,18 @@ def getdata(text):
 # Removing all of the wiki syntax garbage that we don't care about
 # Syntax grabbed from: http://en.wikipedia.org/wiki/Help:Wiki_markup
 def removesyntax(text):
+   text = ''.join(BeautifulSoup("<html><body>" + text + "</body></html>").findAll(text=True))
    import re
-   # text = re.sub(r"\n\**#*:*", "", text) # Indented text and lists and newlines
-   # text = text.replace("====","") # Bolded words
-   # text = text.replace("===","") # Bolded words
-   # text = text.replace("==","") # Bolded words
-   # text = text.replace("\'\'\'","") # Bolded words
-   # text = text.replace("\'\'", "") # Italic words
-   # text = text.replace("----", "") # Horizontal line
-   # text = re.sub("\[\[(.*)\]\]", r'\1', text) #links, save the anchor text
-   # text = re.sub("\{\{(.*)\}\}", "", text) #usually metadata
-   # text = re.sub(r"&[a-z]+;", "", text) #HTML garbage
-   # text = re.sub(r"<br\s*/?>","", text) # Line break
-   # text = re.sub(r"<blockquote>(.*)</blockquote>", r'\1', text) # block quote
-   # text = re.sub(r"<poem>(.*)</poem>", r'\1', text) # poem
-   # text = re.sub(r"<small>(.*)</small>", r'\1', text) # small
-   # text = re.sub(r"<big>(.*)</big>", r'\1', text) # big
-   # text = re.sub(r"<del>(.*)</del>", r'\1', text) # del
-   # text = re.sub(r"<nowiki>(.*)</nowiki>", r'\1', text) # nowiki
-   # text = re.sub(r"<pre>(.*)</pre>", r'\1', text) # pre
-   # text = re.sub(r"<math>(.*)</math>", r'\1', text) # math
-   # text = re.sub(r"<tt>(.*)</tt>", r'\1', text) # typewriter font
-   # text = re.sub(r"<sub>(.*)</sub>", r'\1', text) #subscript
+   text = re.sub("\{\{(.+?)\}\}", "", text) #usually metadata
+   text = re.sub("\[\[[^\[]+\|([^\]]+)\]\]", r'\1', text) #links, save the anchor text
+   text = re.sub("\[\[([^\]]+)\]\]", r'\1', text) #links, save the anchor text
+   text = text.replace("====","") # Bolded words
+   text = text.replace("===","") # Bolded words
+   text = text.replace("==","") # Bolded words
+   text = text.replace("\'\'\'","") # Bolded words
+   text = text.replace("\'\'", "") # Italic words
+   text = text.replace("----", "") # Horizontal line
+   text = re.sub(r"&[a-z]+;", "", text) #HTML garbage
    return text
 
 # Handling converting the unicode data into ascii
