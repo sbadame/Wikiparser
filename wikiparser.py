@@ -69,14 +69,12 @@ def removesyntax(text):
    # text = re.sub(r"<math>(.*)</math>", r'\1', text) # math
    # text = re.sub(r"<tt>(.*)</tt>", r'\1', text) # typewriter font
    # text = re.sub(r"<sub>(.*)</sub>", r'\1', text) #subscript
-   # text = text.replace("\n", "")
-   # text = text.replace("\r", "")
    return text
 
 # Handling converting the unicode data into ascii
 def asciify(text):
     text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore')
-    return removesyntax(text).strip()
+    return removesyntax(text).replace("\n","").replace("\r","").strip()
 
 # Actually do the IO of writing out the file to new a place
 filecount = 0
